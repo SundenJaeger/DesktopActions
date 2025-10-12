@@ -63,7 +63,7 @@ public final class DesktopActions {
      * </pre>
      */
     public static void browse(URI uri) throws DesktopActionException {
-        if (!Desktop.isDesktopSupported()) {
+        if (!isDesktopSupported()) {
             throw new DesktopActionException(ErrorMessage.NOT_SUPPORTED.getMessage());
         }
 
@@ -180,7 +180,7 @@ public final class DesktopActions {
             throw new DesktopActionException(ErrorMessage.FILE_IS_NOT_DIRECTORY.getMessage());
         }
 
-        if (!Desktop.isDesktopSupported()) {
+        if (!isDesktopSupported()) {
             throw new DesktopActionException(ErrorMessage.NOT_SUPPORTED.getMessage());
         }
 
@@ -225,7 +225,7 @@ public final class DesktopActions {
      * The file can typically be restored from the trash if needed.
      *
      * <p>This method checks if the desktop and move to trash action are supported
-     * before attempting the operation. The file must exist on the filesystem.
+     * before attempting the operation. The file must exist in the filesystem.
      *
      * @param file the file to move to trash (must not be null and must exist)
      * @throws DesktopActionException if the file is null, does not exist, the desktop is not supported,
@@ -240,7 +240,7 @@ public final class DesktopActions {
             throw new DesktopActionException(ErrorMessage.FILE_IS_NULL.getMessage());
         }
 
-        if (!Desktop.isDesktopSupported()) {
+        if (!isDesktopSupported()) {
             throw new DesktopActionException(ErrorMessage.NOT_SUPPORTED.getMessage());
         }
 
@@ -250,6 +250,10 @@ public final class DesktopActions {
         }
 
         desktop.moveToTrash(file);
+    }
+
+    public static boolean isDesktopSupported() {
+        return Desktop.isDesktopSupported();
     }
 
     private static boolean isWindows() {
