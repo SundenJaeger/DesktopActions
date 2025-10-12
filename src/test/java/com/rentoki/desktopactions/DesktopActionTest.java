@@ -455,7 +455,7 @@ public class DesktopActionTest {
                 DesktopActionException.class,
                 () -> DesktopActions.open(null)
         );
-        assertEquals("Executable path cannot be null", exception.getMessage());
+        assertEquals(ErrorMessage.EXECUTABLE_PATH_IS_NULL.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -464,7 +464,7 @@ public class DesktopActionTest {
                 DesktopActionException.class,
                 () -> DesktopActions.open("   ")
         );
-        assertEquals("Executable path cannot be null", exception.getMessage());
+        assertEquals(ErrorMessage.EXECUTABLE_PATH_IS_NULL.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -478,7 +478,7 @@ public class DesktopActionTest {
                     DesktopActionException.class,
                     () -> DesktopActions.open(executablePath)
             );
-            assertEquals("Cannot start process.", exception.getMessage());
+            assertEquals(ErrorMessage.CANNOT_START_PROCESS.getMessage(), exception.getMessage());
             assertNotNull(exception.getCause());
             assertInstanceOf(IOException.class, exception.getCause());
         }

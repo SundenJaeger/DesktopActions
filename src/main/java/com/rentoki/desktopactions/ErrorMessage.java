@@ -9,7 +9,9 @@ public enum ErrorMessage {
     FILE_PATH_IS_NULL("File path cannot be null or empty."),
     FILE_IS_NOT_DIRECTORY("File is not a directory."),
     OPEN_FILE_LOCATION_FAILED("Failed to open file: "),
-    OPEN_FILE_DIRECTORY_FAILED("Failed to open directory: ");
+    OPEN_FILE_DIRECTORY_FAILED("Failed to open directory: "),
+    EXECUTABLE_PATH_IS_NULL("Executable path cannot be null"),
+    CANNOT_START_PROCESS("Cannot start process.");
 
     private final String message;
 

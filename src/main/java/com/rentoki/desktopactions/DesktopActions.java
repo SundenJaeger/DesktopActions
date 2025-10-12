@@ -1,8 +1,7 @@
 package com.rentoki.desktopactions;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -37,13 +36,13 @@ public final class DesktopActions {
      */
     public static void open(String executablePath) throws DesktopActionException {
         if (executablePath == null || executablePath.trim().isEmpty()) {
-            throw new DesktopActionException("Executable path cannot be null");
+            throw new DesktopActionException(ErrorMessage.EXECUTABLE_PATH_IS_NULL.getMessage());
         }
 
         try {
             new ProcessBuilder(executablePath).start();
         } catch (IOException e) {
-            throw new DesktopActionException("Cannot start process.", e);
+            throw new DesktopActionException(ErrorMessage.CANNOT_START_PROCESS.getMessage(), e);
         }
     }
 
