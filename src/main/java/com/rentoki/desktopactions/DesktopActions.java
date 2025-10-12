@@ -124,10 +124,14 @@ public final class DesktopActions {
             throw new DesktopActionException(ErrorMessage.FILE_IS_NULL.getMessage());
         }
 
-        try {
-            new ProcessBuilder("explorer", "/select,", file.getAbsolutePath()).start();
-        } catch (IOException e) {
-            throw new DesktopActionException(ErrorMessage.OPEN_FILE_LOCATION_FAILED.getMessage() + file.getAbsolutePath(), e);
+        if (isWindows()) {
+            try {
+                new ProcessBuilder("explorer", "/select,", file.getAbsolutePath()).start();
+            } catch (IOException e) {
+                throw new DesktopActionException(ErrorMessage.OPEN_FILE_LOCATION_FAILED.getMessage() + file.getAbsolutePath(), e);
+            }
+        } else {
+            openFileDirectory(file.getParentFile());
         }
     }
 
@@ -246,5 +250,9 @@ public final class DesktopActions {
         }
 
         desktop.moveToTrash(file);
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("windows");
     }
 }

@@ -376,4 +376,61 @@ public class DesktopActionTest {
         );
         assertEquals(ErrorMessage.NOT_SUPPORTED.getMessage(), exception.getMessage());
     }
+
+    @Test
+    void openFileLocation_OnWindows_UsesExplorerCommand() throws Exception {
+        File tempFile = tempDir.resolve("test.txt").toFile();
+        tempFile.createNewFile();
+
+        try (MockedConstruction<ProcessBuilder> mock = mockConstruction(ProcessBuilder.class,
+                (processBuilder, context) -> {
+                    Process process = mock(Process.class);
+                    when(processBuilder.start()).thenReturn(process);
+                })) {
+            assertDoesNotThrow(() -> DesktopActions.openFileLocation(tempFile));
+            assertEquals(1, mock.constructed().size());
+        }
+    }
+
+    @Test
+    void openFileLocation_FileParameter_ShouldHandleBothWindowsAndNonWindows() throws Exception {
+        File tempFile = tempDir.resolve("test.txt").toFile();
+        tempFile.createNewFile();
+
+        try (MockedConstruction<ProcessBuilder> mock = mockConstruction(ProcessBuilder.class,
+                (processBuilder, context) -> {
+                    Process process = mock(Process.class);
+                    when(processBuilder.start()).thenReturn(process);
+                })) {
+
+            assertDoesNotThrow(() -> DesktopActions.openFileLocation(tempFile));
+        }
+    }
+
+    @Test
+    void openFileLocation_StringParameter_ShouldHandleBothWindowsAndNonWindows() throws Exception {
+        File tempFile = tempDir.resolve("test.txt").toFile();
+        tempFile.createNewFile();
+
+        try (MockedConstruction<ProcessBuilder> mock = mockConstruction(ProcessBuilder.class,
+                (processBuilder, context) -> {
+                    Process process = mock(Process.class);
+                    when(processBuilder.start()).thenReturn(process);
+                })) {
+
+            assertDoesNotThrow(() -> DesktopActions.openFileLocation(tempFile.getAbsolutePath()));
+        }
+    }
+
+    @Test
+    void openFileDirectory_WithValidDirectory_ShouldNotThrowException() throws Exception {
+        File directory = tempDir.toFile();
+        Desktop desktop = mock(Desktop.class);
+        when(Desktop.isDesktopSupported()).thenReturn(true);
+        when(Desktop.getDesktop()).thenReturn(desktop);
+        when(desktop.isSupported(Desktop.Action.OPEN)).thenReturn(true);
+        doNothing().when(desktop).open(directory);
+
+        assertDoesNotThrow(() -> DesktopActions.openFileDirectory(directory));
+    }
 }
