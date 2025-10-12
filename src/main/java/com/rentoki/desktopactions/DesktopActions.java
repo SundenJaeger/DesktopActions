@@ -252,6 +252,32 @@ public final class DesktopActions {
         desktop.moveToTrash(file);
     }
 
+    /**
+     * Checks if the Desktop API is supported on the current platform.
+     *
+     * <p>This method is a wrapper around {@link Desktop#isDesktopSupported()} and
+     * returns whether the Desktop API is available on the current system.</p>
+     *
+     * <p>The Desktop API may not be supported in certain environments such as:
+     * <ul>
+     *   <li>Headless systems without graphical displays</li>
+     *   <li>Server environments</li>
+     *   <li>Some containerized or minimal runtime environments</li>
+     * </ul>
+     *
+     * @return {@code true} if the Desktop API is supported on the current platform,
+     * {@code false} otherwise
+     * @example <pre>
+     * if (DesktopActions.isDesktopSupported()) {
+     *     // Perform desktop operations
+     *     DesktopActions.browse("https://www.example.com");
+     * } else {
+     *     // Fallback behavior
+     *     System.out.println("Desktop operations not supported");
+     * }
+     * </pre>
+     * @see Desktop#isDesktopSupported()
+     */
     public static boolean isDesktopSupported() {
         return Desktop.isDesktopSupported();
     }
