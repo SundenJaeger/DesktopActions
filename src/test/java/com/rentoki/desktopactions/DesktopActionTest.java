@@ -433,4 +433,69 @@ public class DesktopActionTest {
 
         assertDoesNotThrow(() -> DesktopActions.openFileDirectory(directory));
     }
+
+    @Test
+    void open_WithValidExecutablePath_ShouldNotThrowException() {
+        String validExecutablePath = "C:/Program Files/MyApp/myapp.exe";
+
+        try (MockedConstruction<ProcessBuilder> mock = mockConstruction(ProcessBuilder.class,
+                (processBuilder, context) -> {
+                    Process process = mock(Process.class);
+                    when(processBuilder.start()).thenReturn(process);
+                })) {
+
+            assertDoesNotThrow(() -> DesktopActions.open(validExecutablePath));
+            assertEquals(1, mock.constructed().size());
+        }
+    }
+
+    @Test
+    void open_WithNullExecutablePath_ShouldThrowDesktopActionException() {
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.open(null)
+        );
+        assertEquals("Executable path cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void open_WithEmptyExecutablePath_ShouldThrowDesktopActionException() {
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.open("   ")
+        );
+        assertEquals("Executable path cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void open_WhenIOExceptionOccurs_ShouldThrowDesktopActionException() {
+        String executablePath = "C:/Program Files/MyApp/myapp.exe";
+
+        try (MockedConstruction<ProcessBuilder> mock = mockConstruction(ProcessBuilder.class,
+                (processBuilder, context) -> when(processBuilder.start()).thenThrow(new IOException("Process error")))) {
+
+            DesktopActionException exception = assertThrows(
+                    DesktopActionException.class,
+                    () -> DesktopActions.open(executablePath)
+            );
+            assertEquals("Cannot start process.", exception.getMessage());
+            assertNotNull(exception.getCause());
+            assertInstanceOf(IOException.class, exception.getCause());
+        }
+    }
+
+    @Test
+    void open_WithSpacesInPath_ShouldHandleCorrectly() {
+        String executablePathWithSpaces = "C:/Program Files/My App/myapp.exe";
+
+        try (MockedConstruction<ProcessBuilder> mock = mockConstruction(ProcessBuilder.class,
+                (processBuilder, context) -> {
+                    Process process = mock(Process.class);
+                    when(processBuilder.start()).thenReturn(process);
+                })) {
+
+            assertDoesNotThrow(() -> DesktopActions.open(executablePathWithSpaces));
+            assertEquals(1, mock.constructed().size());
+        }
+    }
 }

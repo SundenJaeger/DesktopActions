@@ -24,6 +24,30 @@ import java.net.URISyntaxException;
 public final class DesktopActions {
 
     /**
+     * Opens an executable or application using the system's process builder.
+     *
+     * <p>This method starts a new process for the specified executable path.
+     * The executable must be accessible and have proper execution permissions.
+     *
+     * @param executablePath the path to the executable to run (must not be null or empty)
+     * @throws DesktopActionException if the executable path is null/empty or the process cannot be started
+     * @example <pre>
+     * DesktopActions.open("C:/Program Files/MyApp/myapp.exe");
+     * </pre>
+     */
+    public static void open(String executablePath) throws DesktopActionException {
+        if (executablePath == null || executablePath.trim().isEmpty()) {
+            throw new DesktopActionException("Executable path cannot be null");
+        }
+
+        try {
+            new ProcessBuilder(executablePath).start();
+        } catch (IOException e) {
+            throw new DesktopActionException("Cannot start process.", e);
+        }
+    }
+
+    /**
      * Opens the specified URL in the system's default web browser.
      *
      * <p>This method converts the string URL to a URI and delegates to {@link #browse(URI)}.
