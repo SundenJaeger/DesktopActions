@@ -283,4 +283,97 @@ public class DesktopActionTest {
         assertTrue(exception.getMessage().contains(ErrorMessage.OPEN_FILE_DIRECTORY_FAILED.getMessage()));
         assertNotNull(exception.getCause());
     }
+
+    @Test
+    void moveToTrash_WithValidFilePath_ShouldNotThrowException() throws Exception {
+        File tempFile = tempDir.resolve("test.txt").toFile();
+        tempFile.createNewFile();
+        Desktop desktop = mock(Desktop.class);
+        when(Desktop.isDesktopSupported()).thenReturn(true);
+        when(Desktop.getDesktop()).thenReturn(desktop);
+        when(desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)).thenReturn(true);
+        when(desktop.moveToTrash(tempFile)).thenReturn(true);
+
+        assertDoesNotThrow(() -> DesktopActions.moveToTrash(tempFile.getAbsolutePath()));
+    }
+
+    @Test
+    void moveToTrash_WithValidFile_ShouldNotThrowException() throws Exception {
+        File tempFile = tempDir.resolve("test.txt").toFile();
+        tempFile.createNewFile();
+        Desktop desktop = mock(Desktop.class);
+        when(Desktop.isDesktopSupported()).thenReturn(true);
+        when(Desktop.getDesktop()).thenReturn(desktop);
+        when(desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)).thenReturn(true);
+        when(desktop.moveToTrash(tempFile)).thenReturn(true);
+
+        assertDoesNotThrow(() -> DesktopActions.moveToTrash(tempFile));
+    }
+
+    @Test
+    void moveToTrash_WithNullFilePath_ShouldThrowDesktopActionException() {
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.moveToTrash((String) null)
+        );
+        assertEquals(ErrorMessage.FILE_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void moveToTrash_WithEmptyFilePath_ShouldThrowDesktopActionException() {
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.moveToTrash("   ")
+        );
+        assertEquals(ErrorMessage.FILE_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void moveToTrash_WithNullFile_ShouldThrowDesktopActionException() {
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.moveToTrash((File) null)
+        );
+        assertEquals(ErrorMessage.FILE_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void moveToTrash_WithNonExistentFile_ShouldThrowDesktopActionException() {
+        File nonExistentFile = new File("nonexistent.txt");
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.moveToTrash(nonExistentFile)
+        );
+        assertEquals(ErrorMessage.FILE_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void moveToTrash_WhenDesktopNotSupported_ShouldThrowDesktopActionException() throws Exception {
+        File tempFile = tempDir.resolve("test.txt").toFile();
+        tempFile.createNewFile();
+        when(Desktop.isDesktopSupported()).thenReturn(false);
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.moveToTrash(tempFile)
+        );
+        assertEquals(ErrorMessage.NOT_SUPPORTED.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void moveToTrash_WhenMoveToTrashActionNotSupported_ShouldThrowDesktopActionException() throws Exception {
+        File tempFile = tempDir.resolve("test.txt").toFile();
+        tempFile.createNewFile();
+        Desktop desktop = mock(Desktop.class);
+        when(Desktop.isDesktopSupported()).thenReturn(true);
+        when(Desktop.getDesktop()).thenReturn(desktop);
+        when(desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)).thenReturn(false);
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.moveToTrash(tempFile)
+        );
+        assertEquals(ErrorMessage.NOT_SUPPORTED.getMessage(), exception.getMessage());
+    }
 }

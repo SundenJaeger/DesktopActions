@@ -191,4 +191,60 @@ public final class DesktopActions {
             throw new DesktopActionException(ErrorMessage.OPEN_FILE_DIRECTORY_FAILED.getMessage() + file.getAbsolutePath(), e);
         }
     }
+
+    /**
+     * Moves the specified file to the system's trash/recycle bin.
+     *
+     * <p>This method converts the string path to a File object and delegates to {@link #moveToTrash(File)}.
+     *
+     * @param filePath the path to the file to move to trash (must not be null or empty)
+     * @throws DesktopActionException if the file path is null/empty, the file does not exist,
+     *                                the desktop is not supported, or the operation fails
+     * @example <pre>
+     * DesktopActions.moveToTrash("C:/Users/Documents/old_file.txt");
+     * </pre>
+     * @see #moveToTrash(File)
+     */
+    public static void moveToTrash(String filePath) throws DesktopActionException {
+        if (filePath == null || filePath.trim().isEmpty()) {
+            throw new DesktopActionException(ErrorMessage.FILE_PATH_IS_NULL.getMessage());
+        }
+
+        moveToTrash(new File(filePath));
+    }
+
+    /**
+     * Moves the specified file to the system's trash/recycle bin.
+     *
+     * <p>This method uses the Desktop API's MOVE_TO_TRASH action to safely move
+     * the file to the system's trash/recycle bin instead of permanently deleting it.
+     * The file can typically be restored from the trash if needed.
+     *
+     * <p>This method checks if the desktop and move to trash action are supported
+     * before attempting the operation. The file must exist on the filesystem.
+     *
+     * @param file the file to move to trash (must not be null and must exist)
+     * @throws DesktopActionException if the file is null, does not exist, the desktop is not supported,
+     *                                the move to trash action is not supported, or an error occurs during the operation
+     * @example <pre>
+     * File oldFile = new File("C:/Users/Documents/old_file.txt");
+     * DesktopActions.moveToTrash(oldFile);
+     * </pre>
+     */
+    public static void moveToTrash(File file) throws DesktopActionException {
+        if (file == null || !file.exists()) {
+            throw new DesktopActionException(ErrorMessage.FILE_IS_NULL.getMessage());
+        }
+
+        if (!Desktop.isDesktopSupported()) {
+            throw new DesktopActionException(ErrorMessage.NOT_SUPPORTED.getMessage());
+        }
+
+        Desktop desktop = Desktop.getDesktop();
+        if (!desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)) {
+            throw new DesktopActionException(ErrorMessage.NOT_SUPPORTED.getMessage());
+        }
+
+        desktop.moveToTrash(file);
+    }
 }
