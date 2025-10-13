@@ -33,7 +33,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.rentoki</groupId>
     <artifactId>desktop-actions</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
