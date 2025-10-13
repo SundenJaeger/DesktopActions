@@ -516,7 +516,7 @@ public class DesktopActionTest {
     void testCreateShortcut_WithDefaultLocation_Success() throws DesktopActionException {
         String targetPath = "C:/Program Files/MyApp/myapp.exe";
         Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "myapp.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "myapp.lnk";
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
                 .thenAnswer(invocation -> null);
@@ -530,7 +530,7 @@ public class DesktopActionTest {
     void testCreateShortcut_WithDefaultLocation_FileWithoutExtension() throws DesktopActionException {
         String targetPath = "C:/Program Files/MyApp/myapp";
         Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "myapp.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "myapp.lnk";
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
                 .thenAnswer(invocation -> null);
@@ -544,7 +544,7 @@ public class DesktopActionTest {
     void testCreateShortcut_WithDefaultLocation_DirectoryPath() throws DesktopActionException {
         String targetPath = "C:/Projects/MyProject";
         Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "MyProject.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "MyProject.lnk";
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
                 .thenAnswer(invocation -> null);
@@ -571,7 +571,7 @@ public class DesktopActionTest {
     void testCreateShortcut_WithDefaultLocation_ThrowsException() {
         String targetPath = "C:/Program Files/MyApp/myapp.exe";
         Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "myapp.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "myapp.lnk";
         IOException ioException = new IOException("Unable to write shortcut");
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
@@ -711,7 +711,7 @@ public class DesktopActionTest {
 
         String targetPath = "C:/Program Files/MyApp/myapp.exe";
         Path desktopPath = Path.of(customHome, "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "myapp.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "myapp.lnk";
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
                 .thenAnswer(invocation -> null);
@@ -774,7 +774,7 @@ public class DesktopActionTest {
     void testCreateShortcut_ExtensionStripping_SingleDot() throws DesktopActionException {
         String targetPath = "C:/Program Files/MyApp/myapp.exe";
         Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "myapp.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "myapp.lnk";
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
                 .thenAnswer(invocation -> null);
@@ -788,7 +788,7 @@ public class DesktopActionTest {
     void testCreateShortcut_ExtensionStripping_MultipleDots() throws DesktopActionException {
         String targetPath = "C:/Program Files/MyApp/my.app.v1.0.exe";
         Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "my.app.v1.0.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "my.app.v1.0.lnk";
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
                 .thenAnswer(invocation -> null);
@@ -802,7 +802,7 @@ public class DesktopActionTest {
     void testCreateShortcut_WithDotInDirectoryName() throws DesktopActionException {
         String targetPath = "C:/Program.Files/MyApp/myapp.exe";
         Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
-        String expectedLinkPath = desktopPath.toAbsolutePath() + "myapp.lnk";
+        String expectedLinkPath = desktopPath + File.separator + "myapp.lnk";
 
         shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedLinkPath))
                 .thenAnswer(invocation -> null);

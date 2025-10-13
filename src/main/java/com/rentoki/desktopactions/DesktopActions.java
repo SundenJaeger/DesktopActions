@@ -314,7 +314,7 @@ public final class DesktopActions {
             fileName = fileName.substring(0, idx);
         }
 
-        String linkPath = desktopPath.toAbsolutePath() + fileName + ".lnk";
+        String linkPath = desktopPath + File.separator + fileName + ".lnk";
 
         createShortcut(targetPath, linkPath);
     }
