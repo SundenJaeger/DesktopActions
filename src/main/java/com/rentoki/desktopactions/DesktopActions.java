@@ -1,5 +1,7 @@
 package com.rentoki.desktopactions;
 
+import mslinks.ShellLink;
+
 import java.awt.*;
 import java.io.*;
 import java.net.URI;
@@ -273,6 +275,86 @@ public final class DesktopActions {
         }
 
         desktop.moveToTrash(file);
+    }
+
+    /**
+     * Creates a desktop shortcut for the specified target path.
+     *
+     * <p>This is a convenience method that creates a shortcut on the user's Desktop
+     * by delegating to {@link #createShortcut(String, String)} with the Desktop directory
+     * as the default location.
+     *
+     * <p>The shortcut will be created at: {@code [user.home]/Desktop}
+     *
+     * <p><b>Platform Support:</b> This method is designed for Windows systems where
+     * .lnk files are the standard shortcut format. The mslinks library is used to create
+     * the shortcut file.
+     *
+     * @param targetPath the path to the file or application for which to create a shortcut
+     *                   (can be an executable, file, or directory)
+     * @throws DesktopActionException if the shortcut cannot be created due to I/O errors,
+     *                                permission issues, or if the Desktop directory is inaccessible
+     * @example <pre>
+     * // Create a shortcut on the Desktop for an application
+     * DesktopActions.createShortcut("C:/Program Files/MyApp/myapp.exe");
+     * </pre>
+     * @see #createShortcut(String, String)
+     */
+    public static void createShortcut(String targetPath) throws DesktopActionException {
+        createShortcut(targetPath, System.getProperty("user.home") + "/Desktop");
+    }
+
+    /**
+     * Creates a shortcut at the specified location for the given target path.
+     *
+     * <p>This method uses the mslinks library to create a Windows shortcut (.lnk file)
+     * that points to the specified target. The shortcut allows users to quickly access
+     * files, applications, or directories from a convenient location.
+     *
+     * <p><b>Platform Support:</b> This method is designed for Windows systems where
+     * .lnk files are the standard shortcut format. Behavior on other platforms may vary
+     * depending on the mslinks library implementation.
+     *
+     * <p><b>Note:</b> The link path should be a directory where the shortcut will be created,
+     * not the full path including the shortcut filename. The mslinks library handles
+     * the shortcut file naming automatically based on the target.
+     *
+     * @param targetPath the path to the file, application, or directory for which to create a shortcut
+     *                   (must be a valid path; can be absolute or relative)
+     * @param linkPath   the directory path where the shortcut should be created
+     *                   (must be a valid, accessible directory path)
+     * @throws DesktopActionException if the shortcut cannot be created due to I/O errors,
+     *                                permission issues, invalid paths, or if the link directory
+     *                                does not exist or is not writable
+     * @example <pre>
+     * // Create a shortcut in a custom location
+     * DesktopActions.createShortcut(
+     *     "C:/Program Files/MyApp/myapp.exe",
+     *     "C:/Users/John/Documents/Shortcuts"
+     * );
+     *
+     * // Create a shortcut for a folder
+     * DesktopActions.createShortcut(
+     *     "C:/Projects/MyProject",
+     *     System.getProperty("user.home") + "/Desktop"
+     * );
+     * </pre>
+     * @see #createShortcut(String)
+     */
+    public static void createShortcut(String targetPath, String linkPath) throws DesktopActionException {
+        if (targetPath == null || targetPath.trim().isEmpty()) {
+            throw new DesktopActionException(ErrorMessage.TARGET_PATH_IS_NULL.getMessage());
+        }
+
+        if (linkPath == null || linkPath.trim().isEmpty()) {
+            throw new DesktopActionException(ErrorMessage.LINK_PATH_IS_NULL.getMessage());
+        }
+
+        try {
+            ShellLink.createLink(targetPath, linkPath);
+        } catch (IOException e) {
+            throw new DesktopActionException("Unable to create desktop shortcut.", e);
+        }
     }
 
     /**

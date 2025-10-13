@@ -41,5 +41,10 @@
             <version>5.20.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.vatbub</groupId>
+            <artifactId>mslinks</artifactId>
+            <version>1.0.6.2</version>
+        </dependency>
     </dependencies>
 </project>

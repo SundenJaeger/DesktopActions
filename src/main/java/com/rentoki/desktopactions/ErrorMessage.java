@@ -11,7 +11,9 @@ public enum ErrorMessage {
     OPEN_FILE_LOCATION_FAILED("Failed to open file: "),
     OPEN_FILE_DIRECTORY_FAILED("Failed to open directory: "),
     EXECUTABLE_PATH_IS_NULL("Executable path cannot be null"),
-    CANNOT_START_PROCESS("Cannot start process.");
+    CANNOT_START_PROCESS("Cannot start process."),
+    TARGET_PATH_IS_NULL("Target path cannot be empty or null."),
+    LINK_PATH_IS_NULL("Link path cannot be empty or null.");
 
     private final String message;
 

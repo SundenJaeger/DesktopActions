@@ -1,5 +1,6 @@
 package com.rentoki.desktopactions;
 
+import mslinks.ShellLink;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,16 +23,27 @@ public class DesktopActionTest {
     Path tempDir;
 
     private MockedStatic<Desktop> desktopMock;
+    private String originalUserHome;
+    private MockedStatic<ShellLink> shellLinkMock;
 
     @BeforeEach
     void setUp() {
         desktopMock = mockStatic(Desktop.class);
+        shellLinkMock = mockStatic(ShellLink.class);
     }
 
     @AfterEach
     void tearDown() {
         if (desktopMock != null) {
             desktopMock.close();
+        }
+
+        if (originalUserHome != null) {
+            System.setProperty("user.home", originalUserHome);
+        }
+
+        if (shellLinkMock != null) {
+            shellLinkMock.close();
         }
     }
 
@@ -497,5 +509,229 @@ public class DesktopActionTest {
             assertDoesNotThrow(() -> DesktopActions.open(executablePathWithSpaces));
             assertEquals(1, mock.constructed().size());
         }
+    }
+
+    @Test
+    void testCreateShortcut_WithDefaultLocation_Success() throws DesktopActionException {
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+        String expectedDesktopPath = System.getProperty("user.home") + "/Desktop";
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedDesktopPath))
+                .thenAnswer(invocation -> null);
+
+        DesktopActions.createShortcut(targetPath);
+
+        shellLinkMock.verify(() -> ShellLink.createLink(targetPath, expectedDesktopPath), times(1));
+    }
+
+    @Test
+    void testCreateShortcut_WithCustomLocation_Success() throws DesktopActionException {
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+        String customLinkPath = tempDir.toString();
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, customLinkPath))
+                .thenAnswer(invocation -> null);
+
+        DesktopActions.createShortcut(targetPath, customLinkPath);
+
+        shellLinkMock.verify(() -> ShellLink.createLink(targetPath, customLinkPath), times(1));
+    }
+
+    @Test
+    void testCreateShortcut_WithDefaultLocation_ThrowsException() {
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+        String expectedDesktopPath = System.getProperty("user.home") + "/Desktop";
+        IOException ioException = new IOException("Unable to write shortcut");
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedDesktopPath))
+                .thenThrow(ioException);
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath)
+        );
+
+        assertEquals("Unable to create desktop shortcut.", exception.getMessage());
+        assertEquals(ioException, exception.getCause());
+    }
+
+    @Test
+    void testCreateShortcut_WithCustomLocation_ThrowsException() {
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+        String customLinkPath = "/invalid/path";
+        IOException ioException = new IOException("Path does not exist");
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, customLinkPath))
+                .thenThrow(ioException);
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath, customLinkPath)
+        );
+
+        assertEquals("Unable to create desktop shortcut.", exception.getMessage());
+        assertEquals(ioException, exception.getCause());
+    }
+
+    @Test
+    void testCreateShortcut_WithNullTargetPath_DefaultLocation() {
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(null)
+        );
+
+        assertEquals(ErrorMessage.TARGET_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithEmptyTargetPath_DefaultLocation() {
+        String targetPath = "";
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath)
+        );
+
+        assertEquals(ErrorMessage.TARGET_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithWhitespaceTargetPath_DefaultLocation() {
+        String targetPath = "   ";
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath)
+        );
+
+        assertEquals(ErrorMessage.TARGET_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithNullTargetPath_CustomLocation() {
+        String linkPath = tempDir.toString();
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(null, linkPath)
+        );
+
+        assertEquals(ErrorMessage.TARGET_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithValidTargetPath_NullLinkPath() {
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath, null)
+        );
+
+        assertEquals(ErrorMessage.LINK_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithValidTargetPath_EmptyLinkPath() {
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+        String linkPath = "";
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath, linkPath)
+        );
+
+        assertEquals(ErrorMessage.LINK_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithValidTargetPath_WhitespaceLinkPath() {
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+        String linkPath = "   ";
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath, linkPath)
+        );
+
+        assertEquals(ErrorMessage.LINK_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithRelativePath() throws DesktopActionException {
+        String targetPath = "./myapp.exe";
+        String customLinkPath = "./shortcuts";
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, customLinkPath))
+                .thenAnswer(invocation -> null);
+
+        DesktopActions.createShortcut(targetPath, customLinkPath);
+
+        shellLinkMock.verify(() -> ShellLink.createLink(targetPath, customLinkPath), times(1));
+    }
+
+    @Test
+    void testCreateShortcut_VerifiesUserHomeProperty() throws DesktopActionException {
+        String customHome = tempDir.toString();
+        System.setProperty("user.home", customHome);
+
+        String targetPath = "C:/Program Files/MyApp/app.exe";
+        String expectedDesktopPath = customHome + "/Desktop";
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, expectedDesktopPath))
+                .thenAnswer(invocation -> null);
+
+        DesktopActions.createShortcut(targetPath);
+
+        shellLinkMock.verify(() -> ShellLink.createLink(targetPath, expectedDesktopPath), times(1));
+    }
+
+    @Test
+    void testCreateShortcut_WithSpecialCharactersInPath() throws DesktopActionException {
+        String targetPath = "C:/Program Files/My App (2024)/app v1.0.exe";
+        String customLinkPath = tempDir.toString();
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, customLinkPath))
+                .thenAnswer(invocation -> null);
+
+        DesktopActions.createShortcut(targetPath, customLinkPath);
+
+        shellLinkMock.verify(() -> ShellLink.createLink(targetPath, customLinkPath), times(1));
+    }
+
+    @Test
+    void testCreateShortcut_WithLongPath() throws DesktopActionException {
+        String targetPath = "C:/Very/Long/Path/That/Goes/Deep/Into/The/Directory/Structure/app.exe";
+        String customLinkPath = tempDir.toString();
+
+        shellLinkMock.when(() -> ShellLink.createLink(targetPath, customLinkPath))
+                .thenAnswer(invocation -> null);
+
+        DesktopActions.createShortcut(targetPath, customLinkPath);
+
+        shellLinkMock.verify(() -> ShellLink.createLink(targetPath, customLinkPath), times(1));
+    }
+
+    @Test
+    void testCreateShortcut_WithBothNullPaths() {
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(null, null)
+        );
+
+        assertEquals(ErrorMessage.TARGET_PATH_IS_NULL.getMessage(), exception.getMessage());
+    }
+
+    @Test
+    void testCreateShortcut_WithBothEmptyPaths() {
+        String targetPath = "";
+        String linkPath = "";
+
+        DesktopActionException exception = assertThrows(
+                DesktopActionException.class,
+                () -> DesktopActions.createShortcut(targetPath, linkPath)
+        );
+
+        assertEquals(ErrorMessage.TARGET_PATH_IS_NULL.getMessage(), exception.getMessage());
     }
 }
