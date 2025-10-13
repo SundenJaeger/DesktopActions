@@ -6,6 +6,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 
 /**
  * Utility class for performing common desktop actions such as opening URLs in browsers
@@ -301,7 +302,21 @@ public final class DesktopActions {
      * @see #createShortcut(String, String)
      */
     public static void createShortcut(String targetPath) throws DesktopActionException {
-        createShortcut(targetPath, System.getProperty("user.home") + "/Desktop");
+        if (targetPath == null || targetPath.trim().isEmpty()) {
+            throw new DesktopActionException(ErrorMessage.TARGET_PATH_IS_NULL.getMessage());
+        }
+
+        Path desktopPath = Path.of(System.getProperty("user.home"), "Desktop");
+        String fileName = new File(targetPath).getName();
+
+        int idx = fileName.lastIndexOf('.');
+        if (idx > 0) {
+            fileName = fileName.substring(0, idx);
+        }
+
+        String linkPath = desktopPath.toAbsolutePath() + fileName + ".lnk";
+
+        createShortcut(targetPath, linkPath);
     }
 
     /**
